@@ -42,10 +42,10 @@ void buddy_put_free_pages(u32 addr, u8 order)
 
     spin_lock_irqsave(&buddy_alloc.buddy_lock, flags);
     
+    page_mask  = (~0UL) << order;
     for (start_order = order; start_order < BUDDY_ALLOC_MAX_AREAS; start_order++) {
 	bitmap_idx = page_idx >> (start_order + 1);
-	page_mask  = (~0UL) << start_order;
-	
+
 	if (!test_and_change_bit(bitmap_idx, area->area_bitmap)) {
 	    break;
 	}
@@ -76,21 +76,21 @@ struct page_desc_s *buddy_get_free_pages_back(u32 order, u32 cur_order)
     u32 back_order;
     u32 area_size;
 
-    /* list empty ? */    
     page_desc = list_entry(area->area_list.next, struct page_desc_s, page_list);
     page_idx  = virt_to_page(page_desc->address_virt);
-    
-    for (back_order = cur_order - 1; back_order >= order; back_order--) {
-	area_size = 1 << back_order;
-	page_half_idx = page_idx + area_size;
+    list_del(area->area_list.next);
+    area->free_units--;
+    area--;
+    area_size = 1 << (cur_order - 1);
 
-	list_del(area->area_list.next);
-	area->free_units--;
-	area--;
+    for (back_order = order; back_order < cur_order; back_order++) {
+	page_half_idx = page_idx + area_size;
 	list_add(&page_desc->page_list, &area->area_list);
 	area->free_units++;
 	set_bit(page_half_idx >> (back_order + 1), area->area_bitmap);
 	page_desc = &system_pages[page_half_idx];
+	area_size >>= 1;
+	area--;
     }   
         
     return page_desc;
@@ -118,10 +118,14 @@ u32 buddy_get_free_pages(u8 order)
 	    
 	    break;
 	}
+	area++;
     }
     
     spin_unlock_irqrestore(&buddy_alloc.buddy_lock, flags);
-    
+
+    if (cur_order == BUDDY_ALLOC_MAX_AREAS)
+	return 0;
+	
     return page_desc->address_virt;
 }
 
@@ -162,7 +166,7 @@ void buddy_alloc_pages_init(void)
     }    
     
     for (i = 0; i < main_alloc.mem_size_pages; i++) {
-	system_pages[i].address_phys = i << PAGE_SHIFT;
+	system_pages[i].address_phys = (u32)(i << PAGE_SHIFT);
 	system_pages[i].address_virt = phys_to_virt(system_pages[i].address_phys);
 	INIT_LIST_HEAD(&system_pages[i].page_list);
     }
@@ -172,17 +176,18 @@ void buddy_alloc_print_units(void)
 {
     struct buddy_area_s *area;
     int i;
-    u32 j;
+    u32 flags;
     
     printk(MOD_NAME "buddy_alloc free units\n");
+
+    spin_lock_irqsave(&buddy_alloc.buddy_lock, flags);
 
     for (i = 0; i < BUDDY_ALLOC_MAX_AREAS; i++) {
 	area = &buddy_alloc.buddy_area[i];
 	printk(MOD_NAME "\torder %02d -> %d free units\n", i, area->free_units);
     }
     
-    for (;;);
-    
+    spin_unlock_irqrestore(&buddy_alloc.buddy_lock, flags);
 }
 
 void __init buddy_alloc_init(void)
