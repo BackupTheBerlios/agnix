@@ -1,5 +1,5 @@
 /*
- *  $Id: build.c,v 1.1 2004/09/14 11:33:43 dembol Exp $
+ *  $Id: build.c,v 1.2 2004/10/06 20:39:52 dembol Exp $
  *
  *  Copyright (C) 1991, 1992  Linus Torvalds
  *  Copyright (C) 1997 Martin Mares

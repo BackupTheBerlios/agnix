@@ -36,14 +36,37 @@ void sched_queue_task(void)
 {
 }
 
-void sched_sleep_task(struct task_s *task, struct queue_s *wait_queue)
+void sched_activate_task_lock(struct task_s *task)
+{
+    if (!(task->t_state & TASK_STAT_RUNNING)) {	
+	task->t_state |= TASK_STAT_RUNNING;
+	list_add(&(task->task_list), &running_tasks_list);
+    }
+}
+
+void sched_activate_task(struct task_s *task)
 {
     u32 flags;
 
-    spin_lock_irqsave(&wait_queue->queue_lock, flags);
-    
-    
-    spin_unlock_irqrestore(&wait_queue->queue_lock, flags);
+    spin_lock_irqsave(&running_list_lock, flags);
+    sched_activate_task_lock(task);
+    spin_unlock_irqrestore(&running_list_lock, flags);
+}
+
+void sched_deactivate_task_lock(struct task_s *task)
+{
+    if (task->t_state & TASK_STAT_RUNNING) {	
+	task->t_state &= ~TASK_STAT_RUNNING;
+    }
+}
+
+void sched_deactivate_task(struct task_s *task)
+{
+    u32 flags;
+
+    spin_lock_irqsave(&running_list_lock, flags);
+    sched_deactivate_task_lock(task);
+    spin_unlock_irqrestore(&running_list_lock, flags);
 }
 
 /* we have only Round Robin schedule algorithm */
@@ -62,13 +85,14 @@ void schedule_task(void)
     u32 flags;
     int prev_pid;
 
-//    save_flags(flags); __cli();
     spin_lock_irqsave(&running_list_lock, flags);
 
     prev = current_task;
 
-    if ((prev->t_state & TASK_STAT_KILLED) || (prev->t_state & TASK_STAT_STOPPED)) {
-	list_del(&prev->task_list);
+    if ((prev->t_state & TASK_STAT_KILLED) || (!(prev->t_state & TASK_STAT_RUNNING))) {
+	if (prev->t_pid) {
+	    list_del(&prev->task_list);
+	}
     }
 
     if (list_empty(&running_tasks_list)) {
@@ -78,23 +102,24 @@ void schedule_task(void)
 	next = list_entry(head, struct task_s, task_list);
     }
 
-//    prev->t_state &= ~TASK_STAT_RESCHED;
-//    prev->t_count = INIT_COUNT;
-    
     next->t_state &= ~TASK_STAT_STARTING;
     prev_tss_entry = prev->tss_wrap->tss_entry;
     next_tss_entry = next->tss_wrap->tss_entry;
     prev_pid = prev->t_pid;
 
-    if (!((prev->t_state & TASK_STAT_KILLED) && (prev->t_state & TASK_STAT_STOPPED))) {
-        prev->t_state &= ~TASK_STAT_RESCHED;
-	prev->t_count = INIT_COUNT;
-    } else
-    if (prev->t_state & TASK_STAT_STOPPED) {
-        spin_lock(&stopped_list_lock);
-	list_add(&prev->task_list, &stopped_tasks_list);    
-	spin_unlock(&stopped_list_lock);
-    } else {
+    prev->t_state &= ~TASK_STAT_RESCHED;
+    prev->t_count = INIT_COUNT;
+
+//    if (!((prev->t_state & TASK_STAT_KILLED) && (!(prev->t_state & TASK_STAT_RUNNING)))) {
+//        prev->t_state &= ~TASK_STAT_RESCHED;
+//	prev->t_count = INIT_COUNT;
+//    } else
+//    if (!(prev->t_state & TASK_STAT_RUNNING)) {
+//        spin_lock(&stopped_list_lock);
+//	list_add(&prev->task_list, &stopped_tasks_list);    
+//	spin_unlock(&stopped_list_lock);
+//    } else 
+    if (prev->t_state & TASK_STAT_KILLED) {
 	/* narazie tak. to musi byc zrobione przez sys_wait() */
     	put_free_pages((u32)prev, 1);
     }
@@ -102,10 +127,10 @@ void schedule_task(void)
     if (next != idle_task)
         reschedule_task(next);
 
-    spin_unlock_irqrestore(&running_list_lock, flags);
-
     if (prev_pid != next->t_pid)
         task_switch(next_tss_entry);    
+	
+    spin_unlock_irqrestore(&running_list_lock, flags);
 }
 
 int __init scheduler_init(void)

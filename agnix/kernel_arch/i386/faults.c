@@ -52,6 +52,7 @@ asmlinkage void TRAP_##name(u32 error)	\
     printk(#text);			\
 }
 
+int was_pgfault = 0;
 
 asmlinkage void TRAP_dev_not_avail(u32 error)
 {
@@ -61,7 +62,7 @@ asmlinkage void TRAP_dev_not_avail(u32 error)
 
 asmlinkage void TRAP_general_protection(u32 error)
 {
-//    printk("general protection %x\n", error);
+    printk("general protection %x\n", error);
 }
 
 asmlinkage void TRAP_page_fault(u32 error)
@@ -72,8 +73,12 @@ asmlinkage void TRAP_page_fault(u32 error)
 			    :"=a"(cr2)
 			    :);
 
-//    printk("page fault %08x %x\n", cr2, error & 0x03);
-//    printk("cr2 == %x\n", cr2);
+    if (!was_pgfault) {
+    printk("page fault %08x %x\n", cr2, error & 0x03);
+    printk("cr2 == %x\n", cr2);
+    was_pgfault = 1;
+    }
+    
 }
 
 TRAP_BUILD_NAME(divide_fault, "divide fault");

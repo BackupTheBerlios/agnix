@@ -14,13 +14,12 @@
 #include <agnix/agnix.h>
 #include <agnix/adi/adi.h>
 
-int adi_device_init(struct adi_driver_s *adi_driver)
+void adi_device_lock_irq(struct adi_device_lock_s *dev_lock)
 {
+    spin_lock_irqsave(&dev_lock->spin_lock, dev_lock->save_flags);
 }
 
-int adi_devices_init(void)
+void adi_device_unlock_irq(struct adi_device_lock_s *dev_lock)
 {
-//    adi_pcibus_devices_init();
-//  adi_usbbus_devices_init();
-//  adi_isabus_devices_init();
+    spin_unlock_irqrestore(&dev_lock->spin_lock, dev_lock->save_flags);
 }

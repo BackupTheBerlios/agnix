@@ -54,7 +54,7 @@ int execute_signals(struct task_s *task, struct regs_s *regs)
     switch(signal->signal_nr) {
 
 	case SIGSTOP:
-	    task->t_state |= TASK_STAT_STOPPED;
+	    task->t_state &= ~TASK_STAT_RUNNING;
 	    break;	
 
 	case SIGKILL:

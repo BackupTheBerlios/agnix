@@ -10,7 +10,7 @@
 # Contact:	mailto: <dembol@linux.net>
 #
 
-OBJ-y  = idle.o sched.o
+OBJ-y  = idle.o sched.o sleep.o
 OBJ_LINK = $(OBJ-y)
 OBJ_TARGET = skrn_sched.o
 

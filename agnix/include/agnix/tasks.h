@@ -10,9 +10,9 @@
 #include <asm/tasks.h>
 #include <asm/regs.h>
 
-#define TASK_STAT_STARTING	0x00
-#define	TASK_STAT_RUNNING	0x01
-#define TASK_STAT_STOPPED	0x02
+#define TASK_STAT_STARTING	0x01
+#define	TASK_STAT_RUNNING	0x02
+//#define TASK_STAT_STOPPED	0x04
 #define TASK_STAT_INIT		0x10
 #define TASK_STAT_RESCHED	0x20
 #define TASK_STAT_KILLED	0x40
@@ -68,7 +68,7 @@ struct task_s {
     int  			t_usrpri;
     int  			t_uid;
     
-    u8   			t_state;
+    u32   			t_state;
     u32  			t_flags;
     
     struct task_state_s 	state;

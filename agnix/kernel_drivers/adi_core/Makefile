@@ -16,7 +16,7 @@ OBJ-$(CONFIG_DRIVERS_BLOCK) += adi_block.o
 OBJ-y += adi_chips.o 
 OBJ-y += adi_core.o 
 OBJ-y += adi_drivers.o 
-#OBJ-y += adi_devices.o 
+OBJ-y += adi_devices.o 
 OBJ-$(CONFIG_DRIVERS_NET) += adi_net.o
 OBJ-y += adi_resources.o
 

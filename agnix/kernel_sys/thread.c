@@ -42,29 +42,8 @@ int create_kernel_thread(const char *name, void (*thread_proc)(void *), void *da
     :"a"(__NR_fork), "b"(name), "r"(thread_proc), "r"(data)
     );
 
-    // za 1 wstawic powiadomienie o tym, ze sie skonczyl thread
-    
-//    if (current_task->t_pid > 0) {
-//	__sti();
-
-/*	__asm__ __volatile__ (
-	    "pushl %edx\n\t"
-	    "call  %ecx\n\t"
-	    :
-	    :"c"(thread_proc), "d"(data)
-	);
-*/
-//	__asm__ __volatile__ (
-//	    ""
-//	    :"=c"(ecx)
-//	);
-
-//	printk("%s %08x\n", name, ecx);
-//	kernel_panic("Kernel thread terminated...\n");
-//    } else 
-//    if (current_task->t_pid < 0) {
-//	kernel_panic(MOD_NAME "can not create kernel thread\n");
-//    }
+    if (current_task->t_pid)
+	kernel_panic("Kernel thread terminated...\n");
 
     return 0;
 }

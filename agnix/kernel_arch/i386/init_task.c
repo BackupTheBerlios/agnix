@@ -22,7 +22,7 @@
 
 extern asmlinkage void system_call_task(void);
 
-u32 idle_esp[0x1000] __attribute__((__section__(".data.init_task")));
+u32 idle_esp[0x2000] __attribute__((__section__(".data.init_task")));
 struct tss_wrap_s init_tss[MAX_TASKS] __attribute__ ((__aligned__(32)));
 struct task_s *init_task[MAX_TASKS];
 
@@ -43,6 +43,7 @@ u16 kernel_task_init(struct task_s **task, struct tss_s **tss, u32 page, u32 eip
 
     *task = (struct task_s *)page;
     (*task)->t_pid = 0;
+    (*task)->t_state = TASK_STAT_STARTING;
     (*task)->tss_wrap = tss_wrap;
     
     return task_kernel_create(tss_wrap, eip, page + 0x1000);

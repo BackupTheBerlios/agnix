@@ -11,7 +11,9 @@
  *
  */
 
+#include <agnix/agnix.h>
 #include <asm/types.h>
+#include <agnix/sched.h>
 #include <asm/tss.h>
 #include <agnix/memory.h>
 #include <agnix/tasks.h>
@@ -89,7 +91,8 @@ int do_sys_fork(struct regs_s *regs)
     INIT_LIST_HEAD(&(new_task->task_list));
     
     spin_lock_irqsave(&running_list_lock, flags);
-    list_add(&(new_task->task_list), &running_tasks_list);
+//    list_add(&(new_task->task_list), &running_tasks_list);
+    sched_activate_task_lock(new_task);
     spin_unlock_irqrestore(&running_list_lock, flags);
 
     ret = 0;

@@ -27,7 +27,7 @@ struct list_head tss_list;
 
 #define jmp_to_task(indirect) \
     __asm__ __volatile__ (	\
-    "ljmp *(%%edi)\n\t"	\
+    "ljmp *(%%edi)\n\t"		\
     :				\
     :"D"(&indirect)		\
     )
@@ -59,6 +59,7 @@ void put_free_tss(struct tss_wrap_s *tss)
 void task_switch(u16 nr_task)
 {
 #ifdef DEBUG_THREAD
+    printk("jmp to %d\n", nr_task);
     printk("eip == %x\n", init_tss[nr_task].tss.eip);
     printk("cr3 == %x\n", init_tss[nr_task].tss.__cr3);
     printk("cs  == %x\n", init_tss[nr_task].tss.cs);

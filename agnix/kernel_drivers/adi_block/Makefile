@@ -1,10 +1,10 @@
 #
-# kernel_drivers/adi_core/Makefile
+# kernel_drivers/adi_block/Makefile
 #
 # Copyright (c) 2003-2004 Lukasz Dembinski <dembol@linux.net>
 # All Rights Reserved
 # 
-# Date:		2004/07
+# Date:		2004/09
 # Author: 	Lukasz Dembinski
 # Info:		Makefile
 # Contact:	mailto: <dembol@linux.net>

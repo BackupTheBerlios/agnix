@@ -13,9 +13,9 @@
 
 #include <agnix/agnix.h>
 #include <agnix/init.h>
+#include <agnix/sleep.h>
 #include <agnix/bios/bios.h>
 #include <asm/bios_parametrs.h>
-#include <agnix/console.h>
 #include <asm/desc.h>
 #include <asm/segment.h>
 #include <asm/paging.h>
@@ -25,6 +25,7 @@
 #include <agnix/unistd.h>
 #include <agnix/irq.h>
 #include <agnix/syscalls.h>	/* do_sys_sigaction */
+#include <agnix/console.h>
 
 #define MOD_NAME	"APM: "
 
@@ -167,8 +168,8 @@ int apm_get_power_status(void)
     if (apm_function_call_full(APM_GET_POWER_STATUS, APM_ALL_DEVICES, APM_DEFAULT, &eax, &ebx, &ecx, &edx, &esi, &edi))
 	return -1;
     
-    apm_power_status.apm_battery_status = (u8)(ebx & 0xFF);
-    apm_power_status.apm_battery_flag = (u8)((ecx >> 8) & 0xFF);
+    apm_power_status.apm_battery_status    = (u8)(ebx & 0xFF);
+    apm_power_status.apm_battery_flag 	   = (u8)((ecx >> 8) & 0xFF);
     apm_power_status.apm_battery_life_perc = (u8)(ecx & 0xFF);
     apm_power_status.apm_battery_life_time = (u16)((edx >> 16) & 0xFFFF);
     
@@ -191,24 +192,81 @@ void apm_signal_handler(int signal)
     printk("APM_SIGNAL_HANDLER %d\n", signal);
 }
 
+void apm_events_handle(void)
+{
+    u32 apm_ret, apm_event, apm_info, apm_dummy;
+
+    while(!(apm_function_call_full(APM_GET_PM_EVENT, 0, 0, &apm_ret, &apm_event, &apm_info,
+				   &apm_dummy,  &apm_dummy,  &apm_dummy)))
+    {
+	switch(apm_event) {
+	
+	    case APM_EVENT_STANDBY:
+		printk(MOD_NAME "APM_EVENT_STANDBY\n");
+		break;
+
+	    case APM_EVENT_SUSPEND:
+		printk(MOD_NAME "APM_EVENT_SUSPEND\n");
+		break;
+
+	    case APM_EVENT_NORMAL_RESUME:
+		printk(MOD_NAME "APM_EVENT_NORMAL_RESUME\n");
+		break;
+
+	    case APM_EVENT_CRITICAL_RESUME:
+		printk(MOD_NAME "APM_EVENT_CRITICAL_RESUME\n");
+		break;
+
+	    case APM_EVENT_LOW_BATTERY:
+		printk(MOD_NAME "APM_EVENT_LOW_BATTERY\n");
+		break;
+
+	    case APM_EVENT_POWER_STATUS_CHANGE:
+		printk(MOD_NAME "APM_EVENT_POWER_STATUS_CHANGE\n");
+		break;
+
+	    case APM_EVENT_UPDATE_TIME:
+		printk(MOD_NAME "APM_EVENT_UPDATE_TIME\n");
+		break;
+
+	    case APM_EVENT_CRITICAL_SUSPEND:
+		printk(MOD_NAME "APM_EVENT_CRITICAL_SUSPEND\n");
+		break;
+
+	    case APM_EVENT_USER_STANDBY:
+		printk(MOD_NAME "APM_EVENT_USER_STANDBY\n");
+		break;
+
+	    case APM_EVENT_USER_SUSPEND:
+		printk(MOD_NAME "APM_EVENT_USER_SUSPEND\n");
+		break;
+
+	    case APM_EVENT_STANDBY_RESUME:
+		printk(MOD_NAME "APM_EVENT_STANDBY_RESUME\n");
+		break;
+
+	    case APM_EVENT_CAPABILITY_CHANGE:
+		printk(MOD_NAME "APM_EVENT_CAPABILITY_CHANGE\n");
+		break;
+	}
+    }
+}
+
 void apm_task_start(void *data)
 {
-    struct sigaction_s act;
-    int i;
-
     __sti();
     
-    act.sa_handler = apm_signal_handler;
-    do_sys_sigaction(10, &act, NULL);
-        
     for(;;) {
-	for (i = 0; i < 700000000; i++);
+	apm_events_handle();
+	sleep_timeout(TIMER_HZ);
     }
 }    
 
 int __init apm_init(void)
 {
     apm_bios_info = APM_INFO;
+
+    printk("apm_bios_info ptr = %x\n", apm_bios_info);
 
     if (apm_bios_info->apm_version == 0x00) {
 	printk(MOD_NAME "not found\n");
@@ -218,11 +276,16 @@ int __init apm_init(void)
     printk(MOD_NAME "Found APM ver. %d.%d\n", 
 	(apm_bios_info->apm_version >> 8) & 0xFF, apm_bios_info->apm_version & 0xFF);
 
+    if (apm_bios_info->apm_version != 0x100) {
+        set_code_desc(__APM_CS >> 3,    phys_to_virt((u32)(apm_bios_info->apm_cseg << 4)), (apm_bios_info->apm_cseg_len - 1) & 0xffff, 0, 1);
+        set_code_desc(__APM_CS_16 >> 3, phys_to_virt((u32)(apm_bios_info->apm_cseg_16 << 4)), (apm_bios_info->apm_cseg_16_len - 1) & 0xffff, 0, 0);
+        set_data_desc(__APM_DS >> 3,    phys_to_virt((u32)(apm_bios_info->apm_dseg << 4)), (apm_bios_info->apm_dseg_len - 1) & 0xffff, 0, 1);
+    } else {
+	set_code_desc(__APM_CS >> 3,    phys_to_virt((u32)(apm_bios_info->apm_cseg << 4)), 64 * 1024 - 1, 0, 1);
+	set_code_desc(__APM_CS_16 >> 3, phys_to_virt((u32)(apm_bios_info->apm_cseg_16 << 4)), 64 * 1024 - 1, 0, 0);
+	set_data_desc(__APM_DS >> 3,    phys_to_virt((u32)(apm_bios_info->apm_dseg << 4)), 64 * 1024 - 1, 0, 1);
+    }
     set_data_desc(__APM_40 >> 3,    phys_to_virt((u32)(0x40 << 4)), 4095 - (0x40 << 4), 0, 1);
-    set_code_desc(__APM_CS >> 3,    phys_to_virt((u32)(apm_bios_info->apm_cseg << 4)), 64 * 1024 - 1, 0, 1);
-    set_code_desc(__APM_CS_16 >> 3, phys_to_virt((u32)(apm_bios_info->apm_cseg_16 << 4)), 64 * 1024 - 1, 0, 0);
-    set_data_desc(__APM_DS >> 3,    phys_to_virt((u32)(apm_bios_info->apm_dseg << 4)), 64 * 1024 - 1, 0, 1);
-
     /*
       set_code_desc(__APM_CS >> 3,    phys_to_virt((u32)(apm_bios_info->apm_cseg << 4)), (apm_bios_info->apm_cseg_len - 1) & 0xffff, 0, 1);
       set_code_desc(__APM_CS_16 >> 3, phys_to_virt((u32)(apm_bios_info->apm_cseg_16 << 4)), (apm_bios_info->apm_cseg_16_len - 1) & 0xffff, 0, 0);
@@ -239,3 +302,4 @@ int __init apm_init(void)
     
     return 0;
 }
+

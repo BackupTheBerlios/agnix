@@ -63,11 +63,14 @@ int adi_drivers_init(void)
     adi_drivers_data_init();
     adi_resources_init();
     adi_buses_init();
+#if CONFIG_DRIVERS_NET
+    adi_netdrv_init();
+#endif
 #if CONFIG_DRIVERS_CHAR
     adi_chrdrv_init();
 #endif
-#if CONFIG_DRIVERS_NET
-    adi_netdrv_init();
+#if CONFIG_DRIVERS_BLOCK
+    adi_blkdrv_init();
 #endif
 
     return 0;

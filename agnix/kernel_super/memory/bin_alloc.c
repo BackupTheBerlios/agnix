@@ -119,12 +119,12 @@ int bin_put_all_free_pages(void)
 	if (test_bit((int)i, (void *)(bin_alloc.mem_table)))
 	    continue;
 	
-	put_free_pages((u32)(i << PAGE_SHIFT), 0);
+	put_free_pages(phys_to_virt((u32)(i << PAGE_SHIFT)), 0);
 	free_count++;
     }
 
     for (i = virt_to_page((u32)(bin_alloc.mem_table)); i < main_alloc.mem_table_size_pages; i++) {
-	put_free_pages((u32)(i << PAGE_SHIFT), 0);
+	put_free_pages(phys_to_virt((u32)(i << PAGE_SHIFT)), 0);
 	free_count++;
     }
 
@@ -159,15 +159,3 @@ void __init bin_alloc_init(u32 *mem_table, u32 mem_start, u32 mem_end)
 		       main_alloc.mem_table_size_pages);
 }
 
-/*int __init bin_alloc_init(void)
-{
-    bootmem_init_bh();
-
-    _bin_alloc_init((u32 *)&_end, 0, main_memory.mem_size);
-    _reserve_pages(&mem_alloc, 0, 2);
-
-    bootmem_init_dh();
-    
-    return 0;
-}
-*/

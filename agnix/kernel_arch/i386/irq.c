@@ -106,7 +106,7 @@ asmlinkage void execute_irq(u32 irq, struct regs_s regs)
     if (current_task->signals.pending)
 	execute_signals(current_task, &regs);
 
-    if (current_task->t_state &= TASK_STAT_RESCHED)
+    if (current_task->t_state & TASK_STAT_RESCHED)
 	schedule_task();
 }
 

@@ -78,7 +78,8 @@ void init_thread(void *data)
 
     for (;;) {
         timer_gettimeofday(&my_tv);
-	for (i = 0; i < 700000000; i++);
+	for (i = 0; i < 10000000; i++);
+
 	count++;
     }
     
@@ -188,6 +189,9 @@ struct itimerval_s timerval = {
 
 void start_kernel(void)
 {
+    int i, k;
+    u32 ptr;
+
     terminals_init();
 #if CONFIG_DRIVERS_CHAR
     adi_console_init();
@@ -214,8 +218,8 @@ void start_kernel(void)
 
     timers_init();
     crypt_init();
-    pm_init();
     init_start();
+    pm_init();
     clean_kernel();
 
     printk(NEW_LINE);
@@ -237,6 +241,16 @@ void start_kernel(void)
 
 //    kill(2, 10);
 
+//    k = 0;
+//    for (;;) {
+///	ptr = get_free_pages(0);
+//	printk("%x\n\n", ptr);
+//	buddy_alloc_print_units();
+//	for(i = 0; i < 200000000; i++);
+//    }
+//
+//    __sti();
+
     for(;;);
-	idle_state_enter();
+//	idle_state_enter();
 }
