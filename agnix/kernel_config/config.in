@@ -1,0 +1,45 @@
+
+mainmenu_name "Agnix Kernel Configuration"
+
+mainmenu_option next_comment
+comment 'Processor and features'
+choice 'Processor family' \
+    "386			CONFIG_i386 \
+     Pentium_Classic		CONFIG_PENTIUMI \
+     Pentium_Pro/Pentium-II	CONFIG_PENTIUMII \
+     Pentium-III		CONFIG_PENTIUMIII "
+
+endmenu
+
+mainmenu_option next_comment
+comment 'BIOS (Basic Input Output System)'
+bool 'Enable APM' CONFIG_BIOS_APM
+endmenu
+
+mainmenu_option next_comment
+comment 'Hardware'
+bool 'Enable memory tests' CONFIG_MEMTESTS
+endmenu
+
+
+mainmenu_option next_comment
+comment 'Configure Agnix drivers'
+bool 'Enable support for character drivers' CONFIG_DRIVERS_CHAR
+bool 'Enable support for network card drivers' CONFIG_DRIVERS_NET
+
+if [ "$CONFIG_DRIVERS_NET" = "y" ]; then
+    bool '    Enable support for 3c59x' CONFIG_DRIVERS_NET_3c59x
+    bool '    Enable support for RTL_8029' CONFIG_DRIVERS_NET_RTL_8029
+fi
+endmenu
+
+mainmenu_option next_comment
+comment 'Network protocols'
+comment 'Layer 2 protocols'
+bool 'Enable support for ethernet' CONFIG_NET_LAYER_2_ETH
+bool 'Enable support for token-ring' CONFIG_NET_LAYER_2_TR
+comment 'Layer 3 protocols'
+comment 'Layer 4 protocols'
+endmenu
+
+endmenu

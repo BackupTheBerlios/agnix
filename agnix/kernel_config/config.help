@@ -1,0 +1,10 @@
+Advanced Power Management
+CONFIG_BIOS_APM
+  Jezeli posiadasz komputer z APM to odpowiedz 'Y'. Bedziesz
+  mogl wtedy korzystac z uslug APM. Twoj komputer bedzie 
+  zuzywal mniej enerii. Jednak nie musisz tego robic gdy nie
+  jestes posiadaczem komputera przenosnego, gdyz nie zauwazysz
+  wyraznej roznicy w funkcjonowaniu twojej maszyny.
+  Jezeli jestes posiadaczem laptopa to ta funkcja pozwoli ci pracowac
+  dluzej na bateriach.
+ 
