@@ -25,6 +25,7 @@
  * Configure Agnix drivers
  */
 #define CONFIG_DRIVERS_CHAR 1
+#define CONFIG_DRIVERS_BLOCK 1
 #define CONFIG_DRIVERS_NET 1
 #undef  CONFIG_DRIVERS_NET_3c59x
 #define CONFIG_DRIVERS_NET_RTL_8029 1

@@ -11,7 +11,8 @@
 #
 
 OBJ-y = adi_buses.o 
-OBJ-$(CONFIG_DRIVERS_CHAR) += adi_char.o
+OBJ-$(CONFIG_DRIVERS_CHAR)  += adi_char.o
+OBJ-$(CONFIG_DRIVERS_BLOCK) += adi_block.o
 OBJ-y += adi_chips.o 
 OBJ-y += adi_core.o 
 OBJ-y += adi_drivers.o 

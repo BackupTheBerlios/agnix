@@ -168,7 +168,7 @@ int rtl_8029_reset(struct pcidev_s *pcidev)
     return 0;
 }
 
-int rtl_8029_set_recv_mode(struct netdev_s *netdev, int recv_mode)
+int rtl_8029_set_recv_mode(struct adi_netdev_s *netdev, int recv_mode)
 {
     u32 rtl_8029_rcr = 0;
 
@@ -285,12 +285,12 @@ void rtl_8029_irq(u32 data)
     outb(0xff, rtl_iobase + RTL_8029_ISR);
 }
 
-int rtl_8029_open_driver(struct netdev_s *netdev)
+int rtl_8029_open_driver(struct adi_netdev_s *netdev)
 {
     return 0;
 }
 
-int rtl_8029_close_driver(struct netdev_s *netdev)
+int rtl_8029_close_driver(struct adi_netdev_s *netdev)
 {
     return 0;
 }
@@ -300,13 +300,13 @@ struct irq_routine_s rtl_8029_irq_routine = {
     .flags	= IRQ_FLAG_RANDOM,
 };
 
-struct netdev_ops_s rtl_8029_netdev_ops = {
+struct adi_netdev_ops_s rtl_8029_netdev_ops = {
     .driver_open 	= rtl_8029_open_driver,
     .driver_close	= rtl_8029_close_driver,
     .set_recv_mode	= rtl_8029_set_recv_mode, 
 };
 
-struct netdev_s rtl_8029_netdev = {
+struct adi_netdev_s rtl_8029_netdev = {
     .if_type		= IF_TYPE_ETH,
     .if_ops		= &rtl_8029_netdev_ops,
 };
@@ -315,7 +315,7 @@ int rtl_8029_probe(struct pcidev_s *pcidev, struct adi_driver_id_s *adi_driver_i
 {
     int i;
 
-    net_device_init(&rtl_8029_netdev);
+    adi_netdev_init(&rtl_8029_netdev);
 
     pcibus_enable_device(pcidev);
 
@@ -398,7 +398,7 @@ int rtl_8029_probe(struct pcidev_s *pcidev, struct adi_driver_id_s *adi_driver_i
      */
     rtl_8029_set_recv_mode(&rtl_8029_netdev, NET_RECV_MODE_BROADCAST);
 
-    register_net_device(&rtl_8029_netdev);
+    adi_register_netdev(&rtl_8029_netdev);
 
     return 0;
 }

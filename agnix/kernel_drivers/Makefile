@@ -17,6 +17,7 @@ OBJ_SUBDIR-y 				:= adi_buses/adi_buses_drv.o
 OBJ_SUBDIR-y 				+= adi_chips/adi_chips_drv.o
 OBJ_SUBDIR-y				+= adi_core/adi_core_drv.o
 OBJ_SUBDIR-$(CONFIG_DRIVERS_CHAR) 	+= adi_char/adi_chr_drv.o
+OBJ_SUBDIR-$(CONFIG_DRIVERS_BLOCK) 	+= adi_block/adi_blk_drv.o
 OBJ_SUBDIR-$(CONFIG_DRIVERS_NET) 	+= adi_net/adi_net_drv.o
 OBJ_LINK = $(OBJ-y) $(OBJ_SUBDIR-y)
 
@@ -24,6 +25,7 @@ SUBDIR-y 			:= adi_buses
 SUBDIR-y 			+= adi_chips
 SUBDIR-y 			+= adi_core
 SUBDIR-$(CONFIG_DRIVERS_CHAR)	+= adi_char
+SUBDIR-$(CONFIG_DRIVERS_BLOCK)	+= adi_block
 SUBDIR-$(CONFIG_DRIVERS_NET)	+= adi_net
 
 OBJ_TARGET = krn_drivers.o

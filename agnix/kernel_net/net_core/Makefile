@@ -10,7 +10,8 @@
 # Contact:	mailto: <dembol@linux.net>
 #
 
-OBJ-y  = net_core.o net_devices.o
+OBJ-y  = net_core.o
+# net_devices.o
 OBJ_LINK = $(OBJ-y)
 OBJ_TARGET = core.o
 

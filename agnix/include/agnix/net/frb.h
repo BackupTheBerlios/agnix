@@ -6,13 +6,13 @@
 #define FRB_DEST_TYPE_MULTICAST		2
 #define FRB_DEST_TYPE_OTHER		3
     
-struct netdev_s;
+struct adi_netdev_s;
 
 struct frb_s {
     u8 *frb_data;
     int frb_len;
 
-    struct netdev_s *frb_dev;
+    struct adi_netdev_s *frb_dev;
     int frb_proto;
     int frb_dest_type;
     int frb_offset;

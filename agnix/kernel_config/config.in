@@ -25,6 +25,7 @@ endmenu
 mainmenu_option next_comment
 comment 'Configure Agnix drivers'
 bool 'Enable support for character drivers' CONFIG_DRIVERS_CHAR
+bool 'Enable support for block drivers' CONFIG_DRIVERS_BLOCK
 bool 'Enable support for network card drivers' CONFIG_DRIVERS_NET
 
 if [ "$CONFIG_DRIVERS_NET" = "y" ]; then

@@ -7,7 +7,7 @@
 #	so if you have anything to contribute, please visit the home page or
 #	send a diff -u against the most recent pci.ids to pci-ids@ucw.cz.
 #
-#	$Id: pcibus_names.ids,v 1.1 2004/09/14 11:33:25 dembol Exp $
+#	$Id: pcibus_names.ids,v 1.2 2004/09/21 12:12:38 dembol Exp $
 #
 
 # Vendors, devices and subsystems. Please keep sorted.

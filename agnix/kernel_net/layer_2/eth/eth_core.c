@@ -1,4 +1,5 @@
 #include <agnix/agnix.h>
+#include <agnix/adi/adi.h>
 #include <agnix/init.h>
 #include <agnix/net/net.h>
 #include <agnix/memory.h>
@@ -30,35 +31,35 @@ int eth_header_parse(struct frb_s *frb)
     return 0;
 }
 
-int eth_set_mtu(struct netdev_s *netdev, int mtu)
+int eth_set_mtu(struct adi_netdev_s *netdev, int mtu)
 {
     return 0;
 }
 
-int eth_set_mac_addr(struct netdev_s *netdev, u8 *mac_addr)
+int eth_set_mac_addr(struct adi_netdev_s *netdev, u8 *mac_addr)
 {
     return 0;
 }
 
-int eth_set_broadcast_addr(struct netdev_s *netdev, u8 *broadcast_addr)
+int eth_set_broadcast_addr(struct adi_netdev_s *netdev, u8 *broadcast_addr)
 {
     memset(netdev->if_addr_broadcast, 0xff, NET_LAYER_2_ETH_MAC_LEN);
 
     return 0;
 }
 
-struct netdev_primitives_s ethdev_primit = {
+struct adi_netdev_primitives_s ethdev_primit = {
     .header_build	= eth_header_build,
     .header_parse	= eth_header_parse
 };
 
-struct netdev_ops_s ethdev_ops = {
+struct adi_netdev_ops_s ethdev_ops = {
     .set_mac_addr	= eth_set_mac_addr,
     .set_broadcast_addr	= eth_set_broadcast_addr,
     .set_mtu		= eth_set_mtu
 };
 
-int eth_device_compose_name(struct netdev_s *netdev)
+int eth_device_compose_name(struct adi_netdev_s *netdev)
 {
     sprintf(netdev->if_name, "eth%d", eth_device_nr);    
     eth_device_nr++;
@@ -66,7 +67,7 @@ int eth_device_compose_name(struct netdev_s *netdev)
     return 0;
 }
 
-int eth_device_init(struct netdev_s *netdev)
+int eth_device_init(struct adi_netdev_s *netdev)
 {
     netdev->if_primit 	= &ethdev_primit;
     netdev->if_ops	= &ethdev_ops;

@@ -20,6 +20,7 @@ struct buddy_allocator_s {
 };
 
 void buddy_alloc_init(void);
+void buddy_alloc_print_units(void);
 //void buddy_reserve_pages(struct bin_allocator_s *allocator, u32 start_page, u32 size);
 
 #endif
